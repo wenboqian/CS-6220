@@ -1,0 +1,6 @@
+['ham', 'cheese']
+['ham', 'bread']
+['ham', 'beer']
+['cheese', 'bread']
+['cheese', 'beer']
+['bread', 'beer']
