@@ -10,9 +10,10 @@ def cardinality_items(filename):
         csv_reader = csv.reader(file)
         for row in csv_reader:
             for item in row:
-                if item in record:
+                trimmed_text = item.strip()
+                if trimmed_text in record:
                     continue
-                record.add(item)
+                record.add(trimmed_text)
     return len(record)
 
 
@@ -78,13 +79,13 @@ def process_movie_titles_files(filename):
     with open(filename, mode='r', encoding='ISO-8859-1') as file:
         csv_reader = csv.reader(file)
         for row in csv_reader:
-            movie_id, movie_name = row[0], row[2]
+            movie_name = ','.join(row[2:])
             movie_title_map[movie_name] += 1
-    four_diff_movies_cnt = 0
+    four_diff_movies = []
     for key, value in movie_title_map.items():
         if value == 4:
-            four_diff_movies_cnt += 1
-    return len(movie_title_map.keys()), four_diff_movies_cnt
+            four_diff_movies.append(key)
+    return len(movie_title_map.keys()), len(four_diff_movies)
 
 
 def process_review_both():
@@ -98,7 +99,7 @@ def process_review_both():
         users_rate_map scheme:
         { 
             'user_id': {
-                'movie_name': rating,
+                'movie_id': rating,
                 ...
             },
             ...
@@ -134,9 +135,7 @@ def process_review_both():
             rating_200_movies_users[user_id] = rating_history
     if len(rating_200_movies_users.keys()) == 0:
         return 0, '', []
-    lowest_user_id = next(iter(rating_200_movies_users))
-    for user_id, rating_history in rating_200_movies_users.items():
-        lowest_user_id = min(lowest_user_id, user_id)
+    lowest_user_id = min(rating_200_movies_users.keys(), key=lambda x: int(x))
     lowest_id_user_5_start_rating_movies_id = set()
     for movie_id, rating in rating_200_movies_users[lowest_user_id].items():
         if str(rating) == str(5):
@@ -174,12 +173,12 @@ if __name__ == '__main__':
 
     # answer for Q4
     total_unique_movie, four_diff_movies_cnt = process_movie_titles_files('./netflix-data/movie_titles.csv')
-    # Q4: There are 17297 movies with unique names, and 7 movie names refer to four different movies.
+    # Q4: There are 17359 movies with unique names, and 5 movie names refer to four different movies.
     print(f"Q4: There are {total_unique_movie} movies with unique names, and {four_diff_movies_cnt} movie names refer to four different movies.")
 
     # answer for Q5
     users_rated_exactly_200, lowest_user_id, favorite_movies = process_review_both()
-    # Q5: There are 605 users rated exactly 200 movies, and favorite movie names of lowest user ID: 1001192 are ['Sex and the City: Season 4', 'Ghost', 'Steel Magnolias', 'Pure Country', 'Finding Nemo (Full-screen)']
+    # Q5: There are 605 users rated exactly 200 movies, and favorite movie names of lowest user ID: 508 are ['High Fidelity', "Monty Python's The Meaning of Life: Special Edition", 'American Beauty', 'Roger & Me', 'Eternal Sunshine of the Spotless Mind', 'Being John Malkovich', 'Vietnam: A Television History', 'Super Size Me', 'Lord of the Rings: The Fellowship of the Ring', 'This Is Spinal Tap', 'The Pianist', 'The Silence of the Lambs', 'Sideways', 'Whale Rider', 'Garden State', 'Bowling for Columbine', 'Gandhi', 'Apocalypse Now Redux', 'To Die For', "Monty Python's Life of Brian", 'The Manchurian Candidate', 'Memento', 'Amelie', 'Apocalypse Now', 'The Usual Suspects', 'Lord of the Rings: The Two Towers: Extended Edition', 'The Lord of the Rings: The Fellowship of the Ring: Extended Edition', 'Touching the Void', 'Minority Report', 'The Royal Tenenbaums', 'Election', 'Good Will Hunting', 'L.A. Confidential', 'Taxi Driver', 'Lord of the Rings: The Two Towers', 'Cabaret', 'Adaptation', 'The Accused', 'Lost in Translation', "Boys Don't Cry", 'To Be and To Have', "Schindler's List", 'Raging Bull', 'Lord of the Rings: The Return of the King', 'Monty Python and the Holy Grail', 'Raising Arizona', 'The Shawshank Redemption: Special Edition', 'Harold and Maude', 'Downfall', 'Lord of the Rings: The Return of the King: Extended Edition', 'Monster', 'Band of Brothers', 'Three Kings', 'Unforgiven', 'Maria Full of Grace', 'Days of Wine and Roses', 'Shakespeare in Love']
     print(f"Q5: There are {users_rated_exactly_200} users rated exactly 200 movies, and favorite movie names of lowest user ID: {lowest_user_id} are {favorite_movies}")
 
 
